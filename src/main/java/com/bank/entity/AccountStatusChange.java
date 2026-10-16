@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-/** 账户状态变更 实体，表 account_status_change */
 @TableName("account_status_change")
 public class AccountStatusChange implements Serializable {
     private static final long serialVersionUID = 1L;

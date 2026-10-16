@@ -13,7 +13,7 @@ import java.util.List; import java.util.Map;
 @RequestMapping("/api/loan")
 public class LoanApplyController {
     @Autowired private LoanApplyService loanService;
-    /** 贷款业务：分页 + 按申请编号/借款人模糊搜索 + 状态筛选（客户只能看自己的申请） */
+
     @GetMapping("/list") public Result<Page<LoanApply>> list(
             @RequestParam(required = false) String applyNo,
             @RequestParam(required = false) String userName,

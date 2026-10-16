@@ -9,7 +9,7 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List; import java.util.Map;
 
-/** 登录认证：校验口令 -> 按角色加载菜单 -> 写入 Session */
+
 @RestController
 @RequestMapping("/api")
 public class AuthController {

@@ -6,7 +6,6 @@ import com.bank.entity.RepayRecord;
 import com.bank.entity.User;
 import java.util.List;
 
-/** 还款记录 业务接口 */
 public interface RepayRecordService extends IService<RepayRecord> {
     Page<RepayRecord> pageVo(Page<RepayRecord> page, String applyNo, String repayNo, Integer repayStatus, User curUser);
 }

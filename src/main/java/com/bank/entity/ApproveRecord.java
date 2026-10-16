@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-/** 审批记录 实体，表 approve_record */
 @TableName("approve_record")
 public class ApproveRecord implements Serializable {
     private static final long serialVersionUID = 1L;

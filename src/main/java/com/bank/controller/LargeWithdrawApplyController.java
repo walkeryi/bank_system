@@ -13,7 +13,7 @@ import java.util.List; import java.util.Map;
 @RequestMapping("/api/withdraw")
 public class LargeWithdrawApplyController {
     @Autowired private LargeWithdrawApplyService withdrawService;
-    /** 大额取款申请：分页 + 按申请单号/取款账号模糊搜索 + 状态筛选（客户只能看自己的申请） */
+
     @GetMapping("/list") public Result<Page<LargeWithdrawApply>> list(
             @RequestParam(required = false) String applyNo,
             @RequestParam(required = false) String accountNo,

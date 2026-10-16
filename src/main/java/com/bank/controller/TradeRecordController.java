@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api/trade")
 public class TradeRecordController {
     @Autowired private TradeRecordService tradeService;
-    /** 交易流水：分页 + 按流水号/账号模糊搜索 + 类型/状态筛选（客户只能看自己的流水） */
+
     @GetMapping("/list") public Result<Page<TradeRecord>> list(
             @RequestParam(required = false) String tradeNo,
             @RequestParam(required = false) String accountNo,

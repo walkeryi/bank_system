@@ -63,9 +63,7 @@
                     <a th:href="@{/user/add}">前往新增用户 »</a></div></div></div>
                 <div th:if="${#lists.contains(session.loginUser.roleIds, 3) }"class="col-md-3"><div class="card stat-card"><div class="card-body">
                     <div class="text-muted">角色管理</div><div class="num">账号.权限管理</div>
-                    <a th:href="@{/role/list}">进入角色管理 »</a>
-                    <br>
-                    <a th:href="@{/role/add}">前往新增角色 »</a></div></div></div>
+                    <a th:href="@{/role/list}">进入角色管理 »</a></div></div></div>
             </div>
         </main>
     </div>

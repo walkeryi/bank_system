@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-/** 用户 实体，表 user */
 @TableName("user")
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;

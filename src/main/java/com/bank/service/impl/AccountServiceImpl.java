@@ -33,7 +33,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
         return false;
     }
 
-    @Override @Transactional
+    @Override
+    @Transactional
     public void openAccount(Account a, Long tellerId, String ip){
         if (a.getUserId()==null) throw new BusinessException("请选择客户");
         if (a.getAccountNo()==null || a.getAccountNo().trim().isEmpty()) a.setAccountNo(NoGenerator.accountNo());
@@ -43,7 +44,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
         auditLogService.log(tellerId,"柜面交易","开户",a.getAccountNo(),
                 "为客户["+a.getUserId()+"]开立账户，初始金额"+a.getBalance(),ip);
     }
-    @Override @Transactional
+    @Override
+    @Transactional
     public void changeStatus(Long id, Integer after, String reason, Long op, String ip){
         Account a=baseMapper.selectById(id);
         if (a==null) throw new BusinessException("账户不存在");

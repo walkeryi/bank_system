@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-/** 还款记录 实体，表 repay_record */
 @TableName("repay_record")
 public class RepayRecord implements Serializable {
     private static final long serialVersionUID = 1L;

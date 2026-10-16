@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-/** 大额取款 实体，表 large_withdraw_apply */
 @TableName("large_withdraw_apply")
 public class LargeWithdrawApply implements Serializable {
     private static final long serialVersionUID = 1L;

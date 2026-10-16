@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-/** 通知公告 实体，表 notice */
 @TableName("notice")
 public class Notice implements Serializable {
     private static final long serialVersionUID = 1L;

@@ -30,19 +30,22 @@ public class LoanApplyServiceImpl extends ServiceImpl<LoanApplyDao, LoanApply> i
         }
         return false;
     }
-    @Override @Transactional
+    @Override
+    @Transactional
     public void apply(LoanApply l, Long creditUserId){
         if (l.getUserId()==null || l.getLoanAmount()==null) throw new BusinessException("借款人与金额必填");
         l.setApplyNo(NoGenerator.loanNo()); l.setApplyStatus(0); l.setCreditUserId(creditUserId);
         baseMapper.insert(l);
     }
-    @Override @Transactional
+    @Override
+    @Transactional
     public void audit(Long id, boolean pass, Long creditUserId){
         LoanApply l=baseMapper.selectById(id);
         if (l==null || l.getApplyStatus()!=0) throw new BusinessException("贷款状态不允许初审");
         l.setCreditUserId(creditUserId); l.setApplyStatus(pass?1:3); baseMapper.updateById(l);
     }
-    @Override @Transactional
+    @Override
+    @Transactional
     public void approve(Long id, boolean pass, String comment, Long managerId){
         LoanApply l=baseMapper.selectById(id);
         if (l==null || l.getApplyStatus()!=1) throw new BusinessException("贷款状态不允许终审");
@@ -53,7 +56,8 @@ public class LoanApplyServiceImpl extends ServiceImpl<LoanApplyDao, LoanApply> i
         r.setApproveUserId(managerId); r.setApproveStatus(pass?1:2); r.setApproveOpinion(comment); r.setApproveTime(new Date());
         approveRecordDao.insert(r);
     }
-    @Override @Transactional
+    @Override
+    @Transactional
     public void lend(Long id, Long managerId, String ip){
         LoanApply l=baseMapper.selectById(id);
         if (l==null || l.getApplyStatus()!=2) throw new BusinessException("仅审批通过的贷款可放款");

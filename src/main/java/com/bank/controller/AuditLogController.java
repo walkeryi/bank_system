@@ -12,7 +12,7 @@ import java.util.List;
 @RequestMapping("/api/audit")
 public class AuditLogController {
     @Autowired private AuditLogService auditLogService;
-    /** 审计日志：分页 + 按操作人/模块/动作模糊搜索 */
+
     @GetMapping("/list") public Result<Page<AuditLog>> list(
             @RequestParam(required = false) String operatorUserName,
             @RequestParam(required = false) String operateModule,

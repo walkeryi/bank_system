@@ -31,7 +31,8 @@ public class TradeRecordServiceImpl extends ServiceImpl<TradeRecordDao, TradeRec
         }
         return false;
     }
-    @Override @Transactional
+    @Override
+    @Transactional
     public void doTrade(TradeRecord t, Long op, String ip){
         if (t.getAccountId()==null || t.getTradeAmount()==null || t.getTradeAmount().compareTo(BigDecimal.ZERO)<=0)
             throw new BusinessException("账户与金额必填且须大于0");

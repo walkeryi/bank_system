@@ -2,7 +2,6 @@ package com.bank.common;
 
 import java.io.Serializable;
 
-/** 统一 JSON 返回结构 */
 public class Result<T> implements Serializable {
     private int code; private String msg; private T data;
     public Result() {}

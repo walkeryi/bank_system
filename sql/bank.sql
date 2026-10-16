@@ -152,40 +152,6 @@ CREATE TABLE repay_record (
                               FOREIGN KEY (loan_id) REFERENCES loan_apply(loan_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) COMMENT='还款记录表';
 
-CREATE TABLE financial_product (
-                                   product_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                   product_code VARCHAR(32) NOT NULL UNIQUE,
-                                   product_name VARCHAR(100) NOT NULL,
-                                   product_type TINYINT NOT NULL COMMENT '1理财 2基金 3保险',
-                                   risk_level TINYINT NOT NULL COMMENT '1低~5高',
-                                   min_invest DECIMAL(18,2) NOT NULL COMMENT '起投金额',
-                                   expected_rate DECIMAL(6,4),
-                                   product_term INT COMMENT '期限(天)',
-                                   status TINYINT NOT NULL COMMENT '0下架 1在售',
-                                   remark VARCHAR(255),
-                                   create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                   update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) COMMENT='金融产品表';
-
-CREATE TABLE product_order (
-                               order_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                               order_no VARCHAR(64) NOT NULL UNIQUE,
-                               user_id BIGINT NOT NULL,
-                               product_id BIGINT NOT NULL,
-                               account_id BIGINT NOT NULL,
-                               buy_amount DECIMAL(18,2) NOT NULL,
-                               order_status TINYINT NOT NULL COMMENT '0待扣款 1持仓中 2已赎回 3失败',
-                               sell_user_id BIGINT NULL,
-                               order_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-                               redeem_time DATETIME NULL,
-                               remark VARCHAR(255),
-                               FOREIGN KEY (user_id) REFERENCES `user`(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-                               FOREIGN KEY (product_id) REFERENCES financial_product(product_id) ON DELETE CASCADE ON UPDATE CASCADE,
-                               FOREIGN KEY (account_id) REFERENCES account(account_id) ON DELETE CASCADE ON UPDATE CASCADE,
-                               FOREIGN KEY (sell_user_id) REFERENCES `user`(user_id) ON DELETE CASCADE ON UPDATE CASCADE
-) COMMENT='销售订单表';
-
--- 菜单表：菜单项及链接，登录后按角色查询显示在页面左侧
 CREATE TABLE menu (
                       menu_id INT PRIMARY KEY AUTO_INCREMENT,
                       menu_name VARCHAR(50) NOT NULL,
@@ -203,7 +169,7 @@ CREATE TABLE role_menu (
                            FOREIGN KEY (menu_id) REFERENCES menu(menu_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) COMMENT='角色菜单表';
 
--- ============================ 基础数据 ============================
+
 INSERT INTO `role`(role_name,role_desc) VALUES
                                             ('柜员','柜面交易：开户、存取款、转账、发起大额取款申请'),
                                             ('信贷员','信贷销售：贷款录入初审、产品推荐、查询客户持仓'),
@@ -274,19 +240,6 @@ INSERT INTO repay_record(loan_id,repay_no,repay_amount,principal_amount,interest
                                                                                                                  (1,'RP20260912004',9200.00,8000.00,1200.00,2,'余额不足扣款失败'),
                                                                                                                  (4,'RP20260912005',5500.00,5000.00,500.00,1,'第二期还款成功');
 
-INSERT INTO financial_product(product_code,product_name,product_type,risk_level,min_invest,expected_rate,product_term,status,remark) VALUES
-                                                                                                                                         ('FP001','稳健理财A',1,2,10000.00,0.0320,90,1,'低波动理财'),
-                                                                                                                                         ('FP002','指数基金A',2,4,1000.00,0.0650,365,1,'股票指数基金'),
-                                                                                                                                         ('FP003','年金保险',3,1,50000.00,0.0280,1095,1,'长期年金险'),
-                                                                                                                                         ('FP004','短期现金理财',1,1,1000.00,0.0250,30,0,'产品下架'),
-                                                                                                                                         ('FP005','混合基金B',2,3,5000.00,0.0520,180,1,'股债混合基金');
-
-INSERT INTO product_order(order_no,user_id,product_id,account_id,buy_amount,order_status,sell_user_id,remark) VALUES
-                                                                                                                  ('PO20260912001',5,1,1,50000.00,1,2,'客户购买稳健理财A'),
-                                                                                                                  ('PO20260912002',2,2,3,20000.00,1,2,'客户李四购买指数基金'),
-                                                                                                                  ('PO20260912003',5,5,2,10000.00,2,2,'客户赎回混合基金'),
-                                                                                                                  ('PO20260912004',5,3,1,100000.00,0,2,'待扣款年金保险'),
-                                                                                                                  ('PO20260912005',2,4,3,5000.00,3,2,'订单失败余额不足');
 INSERT INTO menu(menu_id,menu_name,menu_url,parent_id,icon,sort_no) VALUES
                                                                         (1,'系统首页','/success',0,'icon-home',1),
                                                                         (2,'账户管理','/account/list',0,'icon-account',2),
@@ -305,13 +258,14 @@ INSERT INTO menu(menu_id,menu_name,menu_url,parent_id,icon,sort_no) VALUES
                                                                         (15,'用户管理','/user/list',0,'icon-user',15),
                                                                         (16,'角色管理','/role/list',0,'icon-role',16),
                                                                         (17,'修改密码','/user/toPassword',0,'icon-lock',17);
--- 柜员(1)
+
+
 INSERT INTO role_menu(role_id,menu_id) VALUES (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,13),(1,14),(1,17);
--- 信贷员(2)
+
 INSERT INTO role_menu(role_id,menu_id) VALUES (2,1),(2,8),(2,9),(2,10),(2,14),(2,17);
--- 分行经理(3)
+
 INSERT INTO role_menu(role_id,menu_id) VALUES (3,1),(3,2),(3,5),(3,6),(3,8),(3,11),(3,13),(3,14),(3,15),(3,16),(3,17);
--- 风控/审计员(4)
+
 INSERT INTO role_menu(role_id,menu_id) VALUES (4,1),(4,2),(4,5),(4,12),(4,13),(4,14),(4,17);
--- 客户(5)
+
 INSERT INTO role_menu(role_id,menu_id) VALUES (5,1),(5,2),(5,5),(5,7),(5,9),(5,10),(5,14),(5,17);

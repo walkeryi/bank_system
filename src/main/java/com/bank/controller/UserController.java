@@ -13,7 +13,7 @@ import java.util.List; import java.util.Map;
 @RequestMapping("/api/user")
 public class UserController {
     @Autowired private UserService userService;
-    /** 用户列表：分页 + 按工号/姓名/手机号模糊搜索 + 状态筛选 */
+
     @GetMapping("/list") public Result<Page<User>> list(
             @RequestParam(required = false) String userNo,
             @RequestParam(required = false) String userName,

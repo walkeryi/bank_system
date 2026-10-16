@@ -12,7 +12,7 @@ import java.util.List;
 @RequestMapping("/api/role")
 public class RoleController {
     @Autowired private RoleService roleService;
-    /** 角色列表：分页 + 按角色名称模糊搜索 */
+
     @GetMapping("/list") public Result<Page<Role>> list(
             @RequestParam(required = false) String roleName,
             @RequestParam(defaultValue = "1") long pageNum,

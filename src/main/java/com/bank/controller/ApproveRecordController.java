@@ -12,7 +12,7 @@ import java.util.List;
 @RequestMapping("/api/approve")
 public class ApproveRecordController {
     @Autowired private ApproveRecordService approveService;
-    /** 审批记录：分页 + 按申请人/审批人模糊搜索 + 状态筛选 */
+
     @GetMapping("/list") public Result<Page<ApproveRecord>> list(
             @RequestParam(required = false) String applyUserName,
             @RequestParam(required = false) String approveUserName,

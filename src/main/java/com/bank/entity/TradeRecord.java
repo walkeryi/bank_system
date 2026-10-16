@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-/** 交易流水 实体，表 trade_record */
 @TableName("trade_record")
 public class TradeRecord implements Serializable {
     private static final long serialVersionUID = 1L;

@@ -8,7 +8,6 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-/** 菜单；登录后按角色关联 role_menu 查询，渲染到页面左侧 */
 @TableName("menu")
 public class Menu implements Serializable {
     private static final long serialVersionUID = 1L;

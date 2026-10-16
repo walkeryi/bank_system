@@ -23,7 +23,7 @@ public class NoticeController {
     private AuditLogService auditLogService;
 
     @Autowired private NoticeService noticeService;
-    /** 通知公告：分页 + 按标题模糊搜索 + 已读/未读筛选（客户只能看发给自己的） */
+
     @GetMapping("/list") public Result<Page<Notice>> list(
             @RequestParam(required = false) String noticeTitle,
             @RequestParam(required = false) Integer isRead,

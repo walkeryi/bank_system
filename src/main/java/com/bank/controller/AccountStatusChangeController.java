@@ -12,7 +12,7 @@ import java.util.List;
 @RequestMapping("/api/status")
 public class AccountStatusChangeController {
     @Autowired private AccountStatusChangeService statusService;
-    /** 账户状态变更记录：分页 + 按账号/操作人模糊搜索 */
+
     @GetMapping("/list") public Result<Page<AccountStatusChange>> list(
             @RequestParam(required = false) String accountNo,
             @RequestParam(required = false) String operateUserName,

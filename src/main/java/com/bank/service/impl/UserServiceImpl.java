@@ -53,7 +53,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         user.setPasswordHash(Md5Util.md5(password));
         user.setStatus(1);
 
-        // 插入用户，MP自动回填userId
         int rows = baseMapper.insert(user);
         if(rows <= 0){
             return false;
@@ -65,9 +64,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         return true;
     }
 
-    /**
-     * 私有方法：新增/更新用户角色，不碰密码，给注册使用
-     */
     private void insertUserRole(User u, List<Integer> roleIds){
         userRoleDao.deleteByUserId(u.getUserId());
         if (roleIds != null) {
@@ -99,7 +95,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     @Transactional
     public void addUser(User u, List<Integer> roleIds){
         if (u.getStatus()==null) u.setStatus(1);
-        // 管理员后台新增用户，固定初始密码123456，保留原有逻辑不动
         u.setPasswordHash(Md5Util.md5("123456"));
         baseMapper.insert(u);
         userRoleDao.deleteByUserId(u.getUserId());

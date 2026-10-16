@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/api/repay")
 public class RepayRecordController {
     @Autowired private RepayRecordService repayService;
-    /** 还款记录：分页 + 按贷款编号/还款流水模糊搜索 + 状态筛选（客户只能看自己的记录） */
+
     @GetMapping("/list") public Result<Page<RepayRecord>> list(
             @RequestParam(required = false) String applyNo,
             @RequestParam(required = false) String repayNo,

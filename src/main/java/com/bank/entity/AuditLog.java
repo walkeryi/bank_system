@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-/** 审计日志 实体，表 audit_log */
 @TableName("audit_log")
 public class AuditLog implements Serializable {
     private static final long serialVersionUID = 1L;

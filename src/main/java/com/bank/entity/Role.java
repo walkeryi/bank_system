@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-/** 角色 实体，表 role */
 @TableName("role")
 public class Role implements Serializable {
     private static final long serialVersionUID = 1L;

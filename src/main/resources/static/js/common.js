@@ -10,7 +10,6 @@ Bank.http.interceptors.response.use(function (resp) {
     return Promise.reject(err);
 });
 
-// 通用数据表格：props url / columns[{f,label,dict}] / pk / deleteUrl / params / pageSize（可选，传则开启分页）
 Bank.dataTable = {
     props: ['url','columns','pk','deleteUrl','params','pageSize'],
     data(){ return {

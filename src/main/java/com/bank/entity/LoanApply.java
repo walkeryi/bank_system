@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-/** 贷款业务 实体，表 loan_apply */
 @TableName("loan_apply")
 public class LoanApply implements Serializable {
     private static final long serialVersionUID = 1L;
