@@ -1,17 +1,20 @@
-# 构建产物
+﻿# 构建产物
 target/
+
+# 离线 Maven 依赖（体积大，可重新下载）
 .m2repo/
+
+# 已无用的一次性下载器
 .vendor/
 
 # 运行日志
 *.log
 
-# IDE 个人状态（workspace 里存的是本机绝对路径）
+# IDE 个人状态
 .idea/workspace.xml
 .idea/shelf/
 .idea/httpRequests/
 .idea/dataSources/
-.idea/dataSources.local.xml
 *.iml
 
 # 系统文件

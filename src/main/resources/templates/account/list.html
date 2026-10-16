@@ -54,9 +54,11 @@
     methods: {
       chg(row,after){
         const map={0:'解冻',1:'冻结',2:'销户'};
-        let reason=prompt('请输入['+map[after]+']原因','业务需要'); if(reason===null)return;
-        Bank.http.post('/api/account/status',{id:row.accountId,afterStatus:after,reason:reason})
-                .then(r=>{ if(r.data.code===200){alert('操作成功');this.$refs.tbl.load();}else alert(r.data.msg); });
+        Bank.prompt('请输入['+map[after]+']原因','业务需要',{title:'账户'+map[after]}).then(reason=>{
+          if(reason===null)return;
+          Bank.http.post('/api/account/status',{id:row.accountId,afterStatus:after,reason:reason})
+                  .then(r=>{ if(r.data.code===200){alert('操作成功');this.$refs.tbl.load();}else alert(r.data.msg); });
+        });
       },
       reload(){ this.$refs.tbl.reload(); },
       reset(){ this.q.accountNo=''; this.q.userName=''; this.q.idCard=''; this.q.accountStatus=null; this.reload(); }

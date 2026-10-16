@@ -55,15 +55,21 @@ Bank.mount({
     });
   },
   methods: {
-    audit(row,pass){ if(!confirm(pass?'初审通过？':'初审驳回？'))return;
+    audit(row,pass){ Bank.confirm(pass?'初审通过？':'初审驳回？',{title:'贷款初审',okText:pass?'通过':'驳回',danger:!pass}).then(ok=>{
+        if(!ok)return;
         Bank.http.post('/api/loan/audit',{id:row.loanId,pass:pass}).then(r=>{ if(r.data.code===200){this.reload();}else alert(r.data.msg); });
+    }); },
+    approve(row,pass){
+        const ask = pass ? Promise.resolve('同意贷款') : Bank.prompt('请输入驳回意见', '', { title: '终审驳回', okText: '驳回', danger: true });
+        ask.then(c => {
+            if (c === null) return;
+            Bank.http.post('/api/loan/approve',{id:row.loanId,pass:pass,comment:c}).then(r=>{ if(r.data.code===200){this.reload();}else alert(r.data.msg); });
+        });
     },
-    approve(row,pass){ let c=pass?'同意贷款':prompt('驳回意见',''); if(c===null)return;
-        Bank.http.post('/api/loan/approve',{id:row.loanId,pass:pass,comment:c}).then(r=>{ if(r.data.code===200){this.reload();}else alert(r.data.msg); });
-    },
-    lend(row){ if(!confirm('确认放款？'))return;
+    lend(row){ Bank.confirm('确认放款？',{title:'贷款放款',okText:'放款'}).then(ok=>{
+        if(!ok)return;
         Bank.http.post('/api/loan/lend/'+row.loanId).then(r=>{ if(r.data.code===200){alert('已放款');this.reload();}else alert(r.data.msg); });
-    },
+    }); },
     reload(){ this.$refs.tbl.reload(); },
     reset(){ this.q.applyNo=''; this.q.userName=''; this.q.applyStatus=null; this.reload(); }
   }

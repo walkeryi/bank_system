@@ -50,14 +50,17 @@ Bank.mount({
   },
   methods: {
     approve(row,pass){
-        let comment=pass?'同意大额取款':prompt('请输入驳回意见','材料不全');
-        if(comment===null)return;
-        Bank.http.post('/api/withdraw/approve',{id:row.applyId,pass:pass,comment:comment})
-          .then(r=>{ if(r.data.code===200){alert('已处理');this.reload();}else alert(r.data.msg); });
+        const ask = pass ? Promise.resolve('同意大额取款') : Bank.prompt('请输入驳回意见','材料不全',{title:'取款驳回',okText:'驳回',danger:true});
+        ask.then(comment=>{
+            if(comment===null)return;
+            Bank.http.post('/api/withdraw/approve',{id:row.applyId,pass:pass,comment:comment})
+              .then(r=>{ if(r.data.code===200){alert('已处理');this.reload();}else alert(r.data.msg); });
+        });
     },
-    cancel(row){ if(!confirm('确认撤销该申请？'))return;
+    cancel(row){ Bank.confirm('确认撤销该申请？',{title:'撤销申请',okText:'撤销',danger:true}).then(ok=>{
+        if(!ok)return;
         Bank.http.post('/api/withdraw/cancel/'+row.applyId).then(r=>{ if(r.data.code===200){alert('已撤销');this.reload();}else alert(r.data.msg); });
-    },
+    }); },
     reload(){ this.$refs.tbl.reload(); },
     reset(){ this.q.applyNo=''; this.q.accountNo=''; this.q.applyStatus=null; this.reload(); }
   }

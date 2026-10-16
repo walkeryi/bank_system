@@ -2,39 +2,91 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="zh">
 <head th:fragment="head(title)">
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta name="color-scheme" content="light dark"/>
     <title th:text="${title}">银行网点管理系统</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <!-- 首帧前确定明暗主题，避免深色模式下先闪一下白屏。
+         只做这一件事：先看用户保存的外观选择（dsh-theme），没保存或选了“跟随系统”时按系统偏好。
+         系统明暗变化后的实时切换由 static/js/theme.js 负责，这里不重复监听。 -->
+    <script>
+        (function () {
+            var pref = '';
+            try { pref = localStorage.getItem('dsh-theme') || ''; } catch (e) { /* 隐私模式：按系统偏好 */ }
+            if (pref !== 'light' && pref !== 'dark') pref = '';
+            var dark = pref ? (pref === 'dark') : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+        })();
+    </script>
+    <link rel="stylesheet" th:href="@{/static/vendor/css/bootstrap.min.css}"/>
     <link rel="stylesheet" th:href="@{/static/css/app.css}"/>
 </head>
 <body>
 
 <aside th:fragment="sidebar(active)" class="sidebar">
-    <div class="brand">银行网点管理系统</div>
-    <nav class="nav flex-column py-2">
+    <!-- 侧栏图标精灵图：SVG 的 use 只能引用同一文档里的 symbol，所以随 sidebar 片段一起内联。
+         symbol 的 id 与 menu.icon 的取值一一对应（另含兜底的 icon-default）。 -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="icon-home" viewBox="0 0 24 24"><path d="M3.5 10.6 12 4l8.5 6.6"/><path d="M5.7 10.3V19.8h12.6V10.3"/><path d="M9.8 19.8v-5.2h4.4v5.2"/></symbol>
+        <symbol id="icon-account" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.4h18"/><path d="M6.6 14.4h4.2"/></symbol>
+        <symbol id="icon-add" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 8.2v7.6"/><path d="M8.2 12h7.6"/></symbol>
+        <symbol id="icon-trade" viewBox="0 0 24 24"><path d="M4 8.6h12.6"/><path d="M13.6 5.6 16.8 8.6l-3.2 3"/><path d="M20 15.4H7.4"/><path d="M10.4 12.4 7.2 15.4l3.2 3"/></symbol>
+        <symbol id="icon-list" viewBox="0 0 24 24"><path d="M8.6 7h11.4"/><path d="M8.6 12h11.4"/><path d="M8.6 17h11.4"/><path d="M4.6 7h.01"/><path d="M4.6 12h.01"/><path d="M4.6 17h.01"/></symbol>
+        <symbol id="icon-withdraw" viewBox="0 0 24 24"><path d="M12 3.6v10.2"/><path d="M8.2 7.4 12 3.6l3.8 3.8"/><path d="M4.6 14.4v3.4a2.2 2.2 0 0 0 2.2 2.2h10.4a2.2 2.2 0 0 0 2.2-2.2v-3.4"/></symbol>
+        <symbol id="icon-loan" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="6.6" ry="2.7"/><path d="M5.4 6v5.4c0 1.49 2.95 2.7 6.6 2.7s6.6-1.21 6.6-2.7V6"/><path d="M5.4 11.4v5.4c0 1.49 2.95 2.7 6.6 2.7s6.6-1.21 6.6-2.7v-5.4"/></symbol>
+        <symbol id="icon-repay" viewBox="0 0 24 24"><path d="M20.2 12a8.2 8.2 0 1 1-4.1-7.1"/><path d="M15 2.5 16.1 4.9 13.5 5.1"/></symbol>
+        <symbol id="icon-approve" viewBox="0 0 24 24"><path d="M12 3.2 5.2 6v5.6c0 3.9 2.8 7 6.8 8.1 4-1.1 6.8-4.2 6.8-8.1V6L12 3.2Z"/><path d="M9.1 11.9l2.1 2.1 4.1-4.2"/></symbol>
+        <symbol id="icon-audit" viewBox="0 0 24 24"><path d="M9.2 4.4H7.6A1.8 1.8 0 0 0 5.8 6.2v13a1.8 1.8 0 0 0 1.8 1.8h8.8a1.8 1.8 0 0 0 1.8-1.8v-3.1"/><rect x="9.2" y="2.9" width="5.6" height="3" rx="1.2"/><circle cx="15.8" cy="13.4" r="3.4"/><path d="M18.2 15.9 21 18.7"/></symbol>
+        <symbol id="icon-status" viewBox="0 0 24 24"><path d="M3.4 12.6h3.8l2.3-6.3 3.2 12.4 2.4-8.6 1.7 2.5h3.8"/></symbol>
+        <symbol id="icon-notice" viewBox="0 0 24 24"><path d="M18 8.6A6 6 0 0 0 6 8.6c0 6.6-2.8 8.4-2.8 8.4h17.6s-2.8-1.8-2.8-8.4"/><path d="M13.7 20.3a2 2 0 0 1-3.4 0"/></symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8.4" r="3.7"/><path d="M5.2 19.6a6.8 6.8 0 0 1 13.6 0"/></symbol>
+        <symbol id="icon-role" viewBox="0 0 24 24"><circle cx="9.4" cy="8.4" r="3.5"/><path d="M3.2 19.4a6.2 6.2 0 0 1 12.4 0"/><path d="M16.2 5.8a3.5 3.5 0 0 1 0 5.2"/><path d="M17.2 14.5a6.2 6.2 0 0 1 3.6 4.9"/></symbol>
+        <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4.6" y="10.4" width="14.8" height="9.6" rx="2.6"/><path d="M8.1 10.4V7.9a3.9 3.9 0 0 1 7.8 0v2.5"/><path d="M12 14.4v2.2"/></symbol>
+        <symbol id="icon-default" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 8.4v.01"/><path d="M12 11.6v4.4"/></symbol>
+    </svg>
+    <div class="brand">
+        <span class="logo-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6"/><path d="M5.5 10v7M10 10v7M14 10v7M18.5 10v7"/><path d="M3 20.5h18"/></svg>
+        </span>
+        <span>网点管理</span>
+    </div>
+    <nav class="nav flex-column">
         <a th:each="m : ${session.menuList}" class="nav-link"
            th:classappend="${m.menuUrl == active} ? 'active' : ''"
-           th:href="${m.menuUrl}" th:text="${m.menuName}">菜单</a>
+           th:href="${m.menuUrl}">
+            <svg class="ico" aria-hidden="true"><use th:href="'#' + ${m.icon}"></use></svg>
+            <span th:text="${m.menuName}">菜单</span>
+        </a>
     </nav>
 </aside>
 
 <header th:fragment="topbar" class="topbar">
     <div class="sys">银行网点业务处理平台</div>
-    <div class="d-flex align-items-center">
-        <span class="me-3 text-muted">
-            欢迎，<b th:text="${session.loginUser?.userName}">用户</b>
-            （<span th:text="${session.loginUser?.userNo}">工号</span>）
-        </span>
+    <div class="who">
+        <b th:text="${session.loginUser?.userName}">用户</b>
+        <span th:text="${session.loginUser?.userNo}">工号</span>
+        <span class="sep"></span>
+        <!-- 外观（明暗主题）：change 事件与选中值回填都由 theme.js 负责，见 static/js/theme.js -->
+        <label class="theme-pick" for="themeSelect">
+            <span>外观</span>
+            <select id="themeSelect" class="form-select form-select-sm" aria-label="外观" data-theme-select>
+                <option value="light">浅色</option>
+                <option value="dark">深色</option>
+                <option value="system">跟随系统</option>
+            </select>
+        </label>
+        <span class="sep"></span>
         <a class="btn btn-sm btn-outline-secondary" th:href="@{/user/toPassword}">修改密码</a>
-        <a class="btn btn-sm btn-outline-danger ms-2" th:href="@{/logout}">退出登录</a>
+        <a class="btn btn-sm btn-outline-danger" th:href="@{/logout}">退出登录</a>
     </div>
 </header>
 
 <th:block th:fragment="scripts">
-    <script src="https://cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios@1.7.2/dist/axios.min.js"></script>
+    <script th:src="@{/static/vendor/js/vue.global.prod.js}"></script>
+    <script th:src="@{/static/vendor/js/axios.min.js}"></script>
     <script th:src="@{/static/js/dict.js}"></script>
     <script th:src="@{/static/js/common.js}"></script>
+    <script th:src="@{/static/js/theme.js}"></script>
+    <script th:src="@{/static/js/dialog.js}"></script>
 </th:block>
 
 </body>

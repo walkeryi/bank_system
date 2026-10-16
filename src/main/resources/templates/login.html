@@ -3,42 +3,50 @@
 <head th:replace="~{fragments :: head('登录')}"></head>
 <body>
 <div class="login-wrap">
-    <div class="card login-card">
-        <div class="card-body p-4">
-            <h4 class="text-center mb-1">银行网点管理系统</h4>
-            <p class="text-center text-muted mb-4">Bank Branch Management</p>
-            <div id="app">
-                <div class="alert alert-danger py-2" v-if="error">{{ error }}</div>
-                <form @submit.prevent="login">
-                    <div class="mb-3">
-                        <label class="form-label">账号</label>
-                        <input class="form-control" v-model="userNo" placeholder="请输入账号" required/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">密码</label>
-                        <input type="password" class="form-control" v-model="password" placeholder="请输入密码" required/>
-                    </div>
-                    <button class="btn btn-primary w-100" type="submit">登 录</button>
-                </form>
-                <p class="text-muted small mt-3 mb-0">
-                    没有账号？<a th:href="@{/register}">前往注册</a>
-                </p>
-            </div>
+    <main class="auth" id="app">
+        <div class="logo-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6"/><path d="M5.5 10v7M10 10v7M14 10v7M18.5 10v7"/><path d="M3 20.5h18"/></svg>
         </div>
-    </div>
+        <h1>银行网点管理系统</h1>
+        <p class="lead">登录以继续</p>
+
+        <form @submit.prevent="login" novalidate>
+            <div class="field-group" ref="group">
+                <label class="field"><span>账号</span>
+                    <input v-model.trim="userNo" placeholder="工号或客户号" autocomplete="username" autocapitalize="off" autofocus required/>
+                </label>
+                <label class="field"><span>密码</span>
+                    <input type="password" v-model="password" placeholder="请输入密码" autocomplete="current-password" required/>
+                </label>
+            </div>
+            <p class="msg err" v-if="error" role="alert">{{ error }}</p>
+            <button class="btn btn-primary" type="submit" :disabled="busy">{{ busy ? '登录中…' : '登录' }}</button>
+        </form>
+        <p class="foot">没有账号？<a th:href="@{/register}">前往注册</a></p>
+    </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.prod.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios@1.7.2/dist/axios.min.js"></script>
+<script th:src="@{/static/vendor/js/vue.global.prod.js}"></script>
+<script th:src="@{/static/vendor/js/axios.min.js}"></script>
 <script th:src="@{/static/js/common.js}"></script>
 <script>
 Vue.createApp({
-  data(){ return { userNo:'', password:'', error:'' }; },
-  methods:{ login(){
+  data(){ return { userNo:'', password:'', error:'', busy:false }; },
+  methods:{
+    fail(msg){
+      this.error = msg;
+      // 重新触发抖动：先移除类，强制回流，再加上
+      const g = this.$refs.group;
+      g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake');
+    },
+    login(){
       this.error='';
+      if(!this.userNo || !this.password){ this.fail('请输入账号和密码'); return; }
+      this.busy = true;
       axios.post('/api/login',{ userNo:this.userNo, password:this.password })
-        .then(r=>{ if(r.data.code===200){ location.href='/index'; } else { this.error=r.data.msg; } })
-        .catch(e=>{ this.error='登录请求失败'; });
-  }}
+        .then(r=>{ if(r.data.code===200){ location.href='/index'; } else { this.busy=false; this.fail(r.data.msg); } })
+        .catch(e=>{ this.busy=false; this.fail('登录请求失败，请检查服务'); });
+    }
+  }
 }).mount('#app');
 </script>
 </body>

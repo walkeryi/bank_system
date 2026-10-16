@@ -7,7 +7,8 @@
   <div class="main-col">
     <header th:replace="~{fragments :: topbar}"></header>
     <main class="content" id="app">
-      <div class="card" style="max-width:720px"><div class="card-header">新增用户</div>
+      <div class="page-head"><h1 class="page-title">新增用户</h1></div>
+      <div class="card" style="max-width:760px">
       <div class="card-body"><form @submit.prevent="submit" class="row g-3">
         <div class="col-md-6"><label class="form-label">工号/客户号 *</label><input class="form-control" v-model="f.userNo" required/></div>
         <div class="col-md-6"><label class="form-label">姓名 *</label><input class="form-control" v-model="f.userName" required/></div>
@@ -25,7 +26,7 @@
               <label class="form-check-label" :for="'r'+r.roleId">{{r.roleName}}</label>
             </div>
           </div><small class="text-muted">新建用户初始密码为 123456</small></div>
-        <div class="col-12"><button class="btn btn-primary">提交</button> <a class="btn btn-outline-secondary" href="/user/list">返回列表</a></div>
+        <div class="col-12"><button class="btn btn-primary" type="submit" :disabled="busy">{{ busy ? '提交中…' : '提交' }}</button> <a class="btn btn-outline-secondary" href="/user/list">返回列表</a></div>
       </form></div></div>
     </main>
   </div>
@@ -33,12 +34,17 @@
 <th:block th:replace="~{fragments :: scripts}"></th:block>
 <script>
 Bank.mount({
-  data(){ return { f:{ userNo:'',userName:'',idCard:'',phone:'',status:1,roleIds:[] }, roles:[] }; },
+  data(){ return { busy:false, f:{ userNo:'',userName:'',idCard:'',phone:'',status:1,roleIds:[] }, roles:[] }; },
   mounted(){Bank.http.get('/api/user/roles').then(r=>this.roles=r.data.data||[]);},
   methods:{
     submit(){
+        if(this.busy) return;
         if(!this.f.roleIds.length){ alert('请至少选择一个角色'); return; }
-        Bank.http.post('/api/user/add',this.f).then(r=>{ if(r.data.code===200){alert('保存成功');location.href='/user/list';}else alert(r.data.msg); });
+        this.busy = true;
+        Bank.http.post('/api/user/add',this.f).then(r=>{
+            if(r.data.code===200){ alert('保存成功'); location.href='/user/list'; }
+            else { this.busy = false; alert(r.data.msg); }
+        }).catch(()=>{ this.busy = false; });
     }
   }
 });

@@ -11,6 +11,9 @@
     <groupId>com.bank</groupId><artifactId>bank-system</artifactId><version>1.0.0</version><packaging>jar</packaging>
     <name>bank-system 银行网点管理系统</name>
     <properties><java.version>1.8</java.version><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- 显式声明编译级别：避免 IDEA 解析不到 parent 时回退成 Java 5（javac: 不支持发行版本 5） -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <mybatis-plus.version>3.5.3.2</mybatis-plus.version></properties>
     <dependencies>
         <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>
@@ -26,5 +29,16 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <build><plugins><plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId></plugin></plugins></build>
+    <build><plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+                <encoding>UTF-8</encoding>
+            </configuration>
+        </plugin>
+        <plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId></plugin>
+    </plugins></build>
 </project>

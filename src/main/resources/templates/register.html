@@ -3,97 +3,112 @@
 <head th:replace="~{fragments :: head('注册')}"></head>
 <body>
 <div class="login-wrap">
-    <div class="card login-card">
-        <div class="card-body p-4">
-            <h4 class="text-center mb-1">银行网点管理系统</h4>
-            <p class="text-center text-muted mb-4">Bank Branch Management - 用户注册</p>
-            <div id="app">
-                <div class="alert alert-danger py-2" v-if="error">{{ error }}</div>
-                <div class="alert alert-success py-2" v-if="success">{{ success }}</div>
-                <form @submit.prevent="register">
-                    <div class="mb-1">
-                        <label class="form-label">账号</label>
-                        <input class="form-control" v-model="userNo" placeholder="请输入账号" required/>
-                    </div>
-                    <div class="mb-1">
-                        <label class="form-label">用户名</label>
-                        <input class="form-control" v-model="userName" placeholder="输入真实姓名" required/>
-                    </div>
-                    <div class="mb-1">
-                        <label class="form-label">身份证号</label>
-                        <input class="form-control" v-model="idCard" placeholder="请输入身份证号" required/>
-                    </div>
-                    <div class="mb-1">
-                        <label class="form-label">手机号</label>
-                        <input class="form-control" v-model="phone" placeholder="请输入手机号码" required/>
-                    </div>
-                    <div class="mb-1">
-                        <label class="form-label">角色类型</label>
-                        <select class="form-select" v-model="roleId" required>
-                            <option value="">请选择角色</option>
-                            <option value="TELLER">柜员(T)</option>
-                            <option value="LOAN">信贷员(C)</option>
-                            <option value="MANAGER">分行经理(M)</option>
-                            <option value="RISK">风控审计(X)</option>
-                            <option value="CUSTOMER">客户(S)</option>
-                        </select>
-                    </div>
-                    <div class="mb-1">
-                        <label class="form-label">密码</label>
-                        <input type="password" class="form-control" v-model="password" placeholder="至少6位字符" required/>
-                    </div>
-                    <div class="mb-1">
-                        <label class="form-label">确认密码</label>
-                        <input type="password" class="form-control" v-model="confirmPwd" placeholder="再次输入密码" required/>
-                    </div>
-                    <button class="btn btn-primary w-100" type="submit">注 册</button>
-                </form>
-                <p class="text-muted small mt-3 mb-0 text-center">
-                    已有账号？<a th:href="@{/login}">前往登录</a>
-                </p>
-            </div>
+    <main class="auth wide" id="app">
+        <div class="logo-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6"/><path d="M5.5 10v7M10 10v7M14 10v7M18.5 10v7"/><path d="M3 20.5h18"/></svg>
         </div>
-    </div>
+        <h1>创建账号</h1>
+        <p class="lead">填写信息后即可登录使用</p>
+
+        <form @submit.prevent="register" novalidate>
+            <div class="field-group" ref="group">
+                <label class="field"><span>账号</span>
+                    <input v-model.trim="userNo" placeholder="请输入账号" autocomplete="username" required
+                        :class="{'is-invalid': errors.userNo}" @blur="validate('userNo')"/>
+                    <span class="field-error" v-if="errors.userNo">{{ errors.userNo }}</span></label>
+                <label class="field"><span>姓名</span>
+                    <input v-model.trim="userName" placeholder="真实姓名" autocomplete="name" required
+                        :class="{'is-invalid': errors.userName}" @blur="validate('userName')"/>
+                    <span class="field-error" v-if="errors.userName">{{ errors.userName }}</span></label>
+                <label class="field"><span>身份证号</span>
+                    <input v-model.trim="idCard" placeholder="18 位身份证号" inputmode="text" maxlength="18" required
+                        :class="{'is-invalid': errors.idCard}" @blur="validate('idCard')"/>
+                    <span class="field-error" v-if="errors.idCard">{{ errors.idCard }}</span></label>
+                <label class="field"><span>手机号</span>
+                    <input v-model.trim="phone" placeholder="11 位手机号" inputmode="numeric" maxlength="11" autocomplete="tel" required
+                        :class="{'is-invalid': errors.phone}" @blur="validate('phone')"/>
+                    <span class="field-error" v-if="errors.phone">{{ errors.phone }}</span></label>
+                <label class="field"><span>角色</span>
+                    <select v-model="roleId" required :class="{'is-invalid': errors.roleId}" @blur="validate('roleId')">
+                        <option value="">请选择角色</option>
+                        <option value="TELLER">柜员（T）</option>
+                        <option value="LOAN">信贷员（C）</option>
+                        <option value="MANAGER">分行经理（M）</option>
+                        <option value="RISK">风控审计（X）</option>
+                        <option value="CUSTOMER">客户（S）</option>
+                    </select>
+                    <span class="field-error" v-if="errors.roleId">{{ errors.roleId }}</span></label>
+                <label class="field"><span>密码</span>
+                    <input type="password" v-model="password" placeholder="至少 6 位" autocomplete="new-password" required
+                        :class="{'is-invalid': errors.password}" @blur="validate('password')"/>
+                    <span class="field-error" v-if="errors.password">{{ errors.password }}</span></label>
+                <label class="field"><span>确认密码</span>
+                    <input type="password" v-model="confirmPwd" placeholder="再次输入密码" autocomplete="new-password" required
+                        :class="{'is-invalid': errors.confirmPwd}" @blur="validate('confirmPwd')"/>
+                    <span class="field-error" v-if="errors.confirmPwd">{{ errors.confirmPwd }}</span></label>
+            </div>
+            <p class="msg err" v-if="error" role="alert">{{ error }}</p>
+            <p class="msg ok" v-if="success" role="status">{{ success }}</p>
+            <button class="btn btn-primary" type="submit" :disabled="busy">{{ busy ? '提交中…' : '注册' }}</button>
+        </form>
+        <p class="foot">已有账号？<a th:href="@{/login}">前往登录</a></p>
+    </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.prod.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios@1.7.2/dist/axios.min.js"></script>
+<script th:src="@{/static/vendor/js/vue.global.prod.js}"></script>
+<script th:src="@{/static/vendor/js/axios.min.js}"></script>
 <script th:src="@{/static/js/common.js}"></script>
 <script>
+    // 字段校验规则：message 为错误文案，pattern 为正则字符串（可选）
+    const REG_RULES = {
+        userNo:     { message: '请输入账号' },
+        userName:   { message: '请输入姓名' },
+        idCard:     { pattern: '^\\d{17}[0-9Xx]$', message: '请输入 18 位身份证号（末位可为 X）' },
+        phone:      { pattern: '^1\\d{10}$',       message: '请输入 11 位手机号' },
+        roleId:     { message: '请选择角色' },
+        password:   { pattern: '^.{6,}$',          message: '密码不能少于 6 位' },
+        confirmPwd: { message: '请再次输入密码' }
+    };
+    const REG_ORDER = ['userNo','userName','idCard','phone','roleId','password','confirmPwd'];
+
     Vue.createApp({
         data(){
             return {
-                userNo:'',
-                userName:'',
-                idCard:'',
-                phone:'',
-                roleId:'',
-                password:'',
-                confirmPwd:'',
-                error:'',
-                success:''
+                userNo:'', userName:'', idCard:'', phone:'', roleId:'',
+                password:'', confirmPwd:'', error:'', success:'', busy:false, errors:{}
             };
         },
         methods:{
+            fail(msg){
+                this.error = msg;
+                const g = this.$refs.group;
+                g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake');
+            },
+            // 校验单个字段：不合法写入 errors[name]，合法则清除，返回是否通过
+            validate(name){
+                const r = REG_RULES[name] || {};
+                const v = this[name] == null ? '' : String(this[name]);
+                let msg = '';
+                if (!v.trim()) msg = r.message || '请填写该项';
+                else if (r.pattern && !new RegExp(r.pattern).test(v)) msg = r.message || '格式不正确';
+                if (!msg && name === 'confirmPwd' && v !== this.password) msg = '两次输入的新密码不一致';
+                if (msg) this.errors[name] = msg; else delete this.errors[name];
+                // 密码改了，确认密码要跟着重新判定
+                if (name === 'password' && this.confirmPwd) this.validate('confirmPwd');
+                return !msg;
+            },
             register(){
+                if (this.busy) return;
                 this.error='';
                 this.success='';
-                // 前端校验两次密码
-                if(this.password !== this.confirmPwd){
-                    this.error = '两次输入密码不一致';
+                let first = '';
+                REG_ORDER.forEach(n => { if (!this.validate(n) && !first) first = n; });
+                if (first) {
+                    this.fail('请修正标红的字段');
+                    const el = this.$el.querySelector('.is-invalid');
+                    if (el && el.focus) el.focus();
                     return;
                 }
-                if(this.phone.length !=11){
-                    this.error = '手机号长度要11为位';
-                    return;
-                }
-                if(this.idCard.length !=18){
-                    this.error = '身份证号长度要18为位';
-                    return;
-                }
-                if(this.password.length <6){
-                    this.error = '密码长度不能少于6位';
-                    return;
-                }
+                this.busy = true;
                 axios.post('/api/register',{
                     userNo: this.userNo,
                     userName: this.userName,
@@ -102,20 +117,16 @@
                     roleId: this.roleId,
                     password: this.password
                 })
-                    .then(r=>{
-                        if(r.data.code===200){
-                            this.success = '注册成功，即将跳转到登录页';
-                            // 2秒后跳转登录
-                            setTimeout(()=>{
-                                location.href='/login';
-                            },2000);
-                        }else{
-                            this.error = r.data.msg;
-                        }
-                    })
-                    .catch(e=>{
-                        this.error='注册请求失败，请检查服务';
-                    });
+                .then(r=>{
+                    if(r.data.code===200){
+                        this.success = '注册成功，即将跳转到登录页';
+                        setTimeout(()=>{ location.href='/login'; },1800);
+                    }else{
+                        this.busy = false;
+                        this.fail(r.data.msg);
+                    }
+                })
+                .catch(e=>{ this.busy = false; this.fail('注册请求失败，请检查服务'); });
             }
         }
     }).mount('#app');

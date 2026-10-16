@@ -35,9 +35,10 @@ Bank.mount({
     q: { userNo:'', userName:'', phone:'', status:null }
   }; },
   methods: {
-    del(row){ if(!confirm('确认删除用户 '+row.userName+' ?'))return;
+    del(row){ Bank.confirm('确认删除用户 '+row.userName+' ?',{danger:true,okText:'删除'}).then(ok=>{
+      if(!ok)return;
       Bank.http.post('/api/user/delete/'+row.userId).then(r=>{ if(r.data.code===200){alert('已删除');this.reload();}else alert(r.data.msg); });
-    },
+    }); },
     reload(){ this.$refs.tbl.reload(); },
     reset(){ this.q.userNo=''; this.q.userName=''; this.q.phone=''; this.q.status=null; this.reload(); }
   }
