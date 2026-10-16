@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('系统首页')}"></head>
+<body>
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('/success')}"></aside>
+    <div class="main-col">
+        <header th:replace="~{fragments :: topbar}"></header>
+        <main class="content">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4>您好，<span th:text="${session.loginUser?.userName}">用户</span>，欢迎使用银行网点管理系统</h4>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 5) }"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">我的账户</div><div class="num">账户·余额一览</div>
+                    <a th:href="@{/account/list}">查看我的账户 &raquo;</a></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 1) or #lists.contains(session.loginUser.roleIds, 3)or #lists.contains(session.loginUser.roleIds, 4) or #lists.contains(session.loginUser.roleIds, 3)}" class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">柜面交易</div><div class="num">存取·转账</div>
+                    <a th:href="@{/trade/list}">查看交易流水 &raquo;</a >
+                    <br>
+                    <a th:if="${#lists.contains(session.loginUser.roleIds, 1)}"th:href="@{/trade/toAdd}">办理一笔交易 &raquo;</a ></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 5)}"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">交易流水</div><div class="num">存取.转账记录</div>
+                    <a th:href="@{/trade/list}">查看交易流水 &raquo;</a></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 1)or #lists.contains(session.loginUser.roleIds, 3)or #lists.contains(session.loginUser.roleIds, 5)}"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">大额取款</div><div class="num">申请·审批进度</div>
+                    <a th:href="@{/withdraw/list}">查看大额取款 &raquo;</a>
+                    <br>
+                    <a th:href="@{/withdraw/toAdd}">发起大额取款申请 &raquo;</a></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 3)or #lists.contains(session.loginUser.roleIds, 5)}"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">信贷销售</div><div class="num">贷款·理财下单</div>
+                    <a th:href="@{/loan/list}">进入信贷业务 &raquo;</a>
+                    <br>
+                    <a th:href="@{/loan/toAdd}">前往贷款申请 &raquo;</a></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 4)}"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">风控审计</div><div class="num">监控·审计留痕</div>
+                    <a th:href="@{/audit/list}">查看审计日志 &raquo;</a></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 2)or #lists.contains(session.loginUser.roleIds, 5) }"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">还款管理</div><div class="num">还款·记录查询</div>
+                    <a th:href="@{/repay/list}">查看还款记录 &raquo;</a></div></div></div>
+                <div class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">公告管理</div><div class="num">通知.发布查看</div>
+                    <a th:href="@{/notice/list}">查看通知公告 &raquo;</a>
+                    <br>
+                    <a th:if="${#lists.contains(session.loginUser.roleIds, 1)or#lists.contains(session.loginUser.roleIds, 2)or#lists.contains(session.loginUser.roleIds, 3)or#lists.contains(session.loginUser.roleIds, 4)}"th:href="@{/notice/add}">前往发布公告 &raquo;</a></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 1) or #lists.contains(session.loginUser.roleIds, 3) or #lists.contains(session.loginUser.roleIds, 4)}"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">账户业务</div><div class="num">开户.冻结.销户</div>
+                    <a th:href="@{/account/list}">进入账户管理 &raquo;</a>
+                    <br>
+                    <a th:href="@{/account/toAdd}">前往客户开户 &raquo;</a></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 1)or #lists.contains(session.loginUser.roleIds, 3)or  #lists.contains(session.loginUser.roleIds, 4) }"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">状态变更</div><div class="num">冻结·解冻·销户</div>
+                    <a th:href="@{/status/list}">查看变更记录 »</a></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 3) }"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">审批记录</div><div class="num">审批.结果留痕</div>
+                    <a th:href="@{/approve/list}">查看审批记录 »</a></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 3) }"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">用户管理</div><div class="num">账号.权限管理</div>
+                    <a th:href="@{/user/list}">进入用户管理 »</a>
+                    <br>
+                    <a th:href="@{/user/add}">前往新增用户 »</a></div></div></div>
+                <div th:if="${#lists.contains(session.loginUser.roleIds, 3) }"class="col-md-3"><div class="card stat-card"><div class="card-body">
+                    <div class="text-muted">角色管理</div><div class="num">账号.权限管理</div>
+                    <a th:href="@{/role/list}">进入角色管理 »</a>
+                    <br>
+                    <a th:href="@{/role/add}">前往新增角色 »</a></div></div></div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

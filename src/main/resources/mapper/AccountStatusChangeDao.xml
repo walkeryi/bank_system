@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bank.dao.AccountStatusChangeDao">
+    <select id="selectVoList" resultType="com.bank.entity.AccountStatusChange">
+        SELECT c.*, a.account_no AS accountNo, u.user_name AS operateUserName
+        FROM account_status_change c
+        LEFT JOIN account a ON a.account_id=c.account_id
+        LEFT JOIN `user` u ON u.user_id=c.operate_user_id
+        <where>
+            <if test="accountNo != null and accountNo != ''">
+                AND a.account_no LIKE CONCAT('%', #{accountNo}, '%')
+            </if>
+            <if test="operateUserName != null and operateUserName != ''">
+                AND u.user_name LIKE CONCAT('%', #{operateUserName}, '%')
+            </if>
+        </where>
+        ORDER BY c.change_id ASC
+    </select>
+</mapper>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('新增用户')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/user/list')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <div class="card" style="max-width:720px"><div class="card-header">新增用户</div>
+      <div class="card-body"><form @submit.prevent="submit" class="row g-3">
+        <div class="col-md-6"><label class="form-label">工号/客户号 *</label><input class="form-control" v-model="f.userNo" required/></div>
+        <div class="col-md-6"><label class="form-label">姓名 *</label><input class="form-control" v-model="f.userName" required/></div>
+        <div class="col-md-6"><label class="form-label">身份证号</label><input class="form-control" v-model="f.idCard"/></div>
+        <div class="col-md-6"><label class="form-label">手机号</label><input class="form-control" v-model="f.phone"/></div>
+        <div class="col-md-6"><label class="form-label">状态</label>
+          <!--<select class="form-select" v-model="f.status"><option :value="1">正常</option><option :value="0">禁用</option></select></div>-->
+          <select class="form-select" v-model="f.status">
+            <option :value="1">正常</option>
+          </select></div>
+        <div class="col-12"><label class="form-label">分配角色 *</label>
+          <div class="d-flex flex-wrap">
+            <div class="form-check me-3" v-for="r in roles" :key="r.roleId">
+              <input class="form-check-input" type="checkbox" :value="r.roleId" v-model="f.roleIds" :id="'r'+r.roleId"/>
+              <label class="form-check-label" :for="'r'+r.roleId">{{r.roleName}}</label>
+            </div>
+          </div><small class="text-muted">新建用户初始密码为 123456</small></div>
+        <div class="col-12"><button class="btn btn-primary">提交</button> <a class="btn btn-outline-secondary" href="/user/list">返回列表</a></div>
+      </form></div></div>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({
+  data(){ return { f:{ userNo:'',userName:'',idCard:'',phone:'',status:1,roleIds:[] }, roles:[] }; },
+  mounted(){Bank.http.get('/api/user/roles').then(r=>this.roles=r.data.data||[]);},
+  methods:{
+    submit(){
+        if(!this.f.roleIds.length){ alert('请至少选择一个角色'); return; }
+        Bank.http.post('/api/user/add',this.f).then(r=>{ if(r.data.code===200){alert('保存成功');location.href='/user/list';}else alert(r.data.msg); });
+    }
+  }
+});
+</script>
+</body>
+</html>

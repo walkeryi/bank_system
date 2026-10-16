@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bank.dao.RepayRecordDao">
+    <select id="selectVoList" resultType="com.bank.entity.RepayRecord">
+        SELECT r.*, l.apply_no AS applyNo, u.user_name AS userName
+        FROM repay_record r
+        LEFT JOIN loan_apply l ON l.loan_id = r.loan_id
+        LEFT JOIN `user` u ON u.user_id = l.user_id
+        <where>
+            <if test="userId != null">
+                AND l.user_id = #{userId}
+            </if>
+            <if test="applyNo != null and applyNo != ''">
+                AND l.apply_no LIKE CONCAT('%', #{applyNo}, '%')
+            </if>
+            <if test="repayNo != null and repayNo != ''">
+                AND r.repay_no LIKE CONCAT('%', #{repayNo}, '%')
+            </if>
+            <if test="repayStatus != null">
+                AND r.repay_status = #{repayStatus}
+            </if>
+        </where>
+        ORDER BY r.repay_id ASC
+    </select>
+
+</mapper>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('客户开户')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/account/toAdd')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <div class="card" style="max-width:720px"><div class="card-header">客户开户</div>
+      <div class="card-body"><form @submit.prevent="submit" class="row g-3">
+        <div class="col-md-6"><label class="form-label">客户用户ID *</label><input type="number" class="form-control" v-model.number="f.userId" required/></div>
+        <div class="col-md-6"><label class="form-label">账号（留空自动生成）</label><input class="form-control" v-model="f.accountNo"/></div>
+        <div class="col-md-6"><label class="form-label">初始存款金额</label><input type="number" step="any" class="form-control" v-model.number="f.balance"/></div>
+        <div class="col-md-6"><label class="form-label">备注</label><input class="form-control" v-model="f.remark"/></div>
+        <div class="col-12"><button class="btn btn-primary">提交</button> <a class="btn btn-outline-secondary" href="/account/list">返回列表</a></div>
+      </form></div></div>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({
+  data(){ return { f:{ userId:null,accountNo:'',balance:0,remark:'' } }; },
+  methods:{
+    submit(){ Bank.http.post('/api/account/add',this.f).then(r=>{ if(r.data.code===200){alert('开户成功');location.href='/account/list';}else alert(r.data.msg); }); }
+  }
+});
+</script>
+</body>
+</html>

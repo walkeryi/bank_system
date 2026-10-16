@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('用户管理')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/user/list')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <data-table ref="tbl" url="/api/user/list" :columns="cols" pk="userId" :params="q" :page-size="5">
+        <template #title>用户管理</template>
+        <template #btns><a class="btn btn-sm btn-primary" href="/user/add">新增用户</a></template>
+        <template #search>
+          <div class="d-flex flex-wrap align-items-center gap-2 p-3 border-bottom bg-light">
+            <input class="form-control form-control-sm" style="max-width:160px" v-model.trim="q.userNo" @keyup.enter="reload()" placeholder="工号/客户号"/>
+            <input class="form-control form-control-sm" style="max-width:130px" v-model.trim="q.userName" @keyup.enter="reload()" placeholder="姓名"/>
+            <input class="form-control form-control-sm" style="max-width:150px" v-model.trim="q.phone" @keyup.enter="reload()" placeholder="手机号"/>
+            <button class="btn btn-sm btn-primary" @click="reload()">搜索</button>
+            <button class="btn btn-sm btn-outline-secondary" @click="reset()">重置</button>
+          </div>
+        </template>
+        <template #actions="{row}">
+          <button class="btn btn-sm btn-outline-danger" @click="del(row)">删除</button>
+        </template>
+      </data-table>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({
+  data(){ return {
+    DICTS: window.DICTS,
+    cols: [{"f":"userId","label":"ID"},{"f":"userNo","label":"工号/客户号"},{"f":"userName","label":"姓名"},{"f":"idCard","label":"身份证号"},{"f":"phone","label":"手机号"},{"f":"roleName","label":"角色"},{"f":"status","label":"状态","dict":"userStatus"},{"f":"createTime","label":"创建时间"}],
+    q: { userNo:'', userName:'', phone:'', status:null }
+  }; },
+  methods: {
+    del(row){ if(!confirm('确认删除用户 '+row.userName+' ?'))return;
+      Bank.http.post('/api/user/delete/'+row.userId).then(r=>{ if(r.data.code===200){alert('已删除');this.reload();}else alert(r.data.msg); });
+    },
+    reload(){ this.$refs.tbl.reload(); },
+    reset(){ this.q.userNo=''; this.q.userName=''; this.q.phone=''; this.q.status=null; this.reload(); }
+  }
+});
+</script>
+</body>
+</html>

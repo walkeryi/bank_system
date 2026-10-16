@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('通知公告-新增')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/notice/add')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <data-form :fields="fields" url="/api/notice/add" back="/notice/list">
+        <template #title>通知公告 - 新增</template>
+      </data-form>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({ data(){ return { fields: [{"name": "noticeTitle", "label": "标题", "type": "text", "required": true}, {"name": "noticeContent", "label": "内容", "type": "textarea", "required": true}, {"name": "receiveUserId", "label": "接收人用户ID(留空=全体)", "type": "number", "required": false}] }; } });
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('还款记录')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/repay/list')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <data-table ref="tbl" url="/api/repay/list" :columns="cols" pk="id" :params="q" :page-size="5">
+        <template #title>还款记录</template>
+        <template #search>
+          <div class="d-flex flex-wrap align-items-center gap-2 p-3 border-bottom bg-light">
+            <input class="form-control form-control-sm" style="max-width:180px" v-model.trim="q.applyNo" @keyup.enter="reload()" placeholder="贷款编号"/>
+            <input class="form-control form-control-sm" style="max-width:180px" v-model.trim="q.repayNo" @keyup.enter="reload()" placeholder="还款流水"/>
+            <select class="form-select form-select-sm" style="max-width:130px" v-model="q.repayStatus">
+              <option :value="null">全部状态</option>
+              <option v-for="(lab,val) in DICTS.repayStatus" :key="val" :value="Number(val)">{{lab}}</option>
+            </select>
+            <button class="btn btn-sm btn-primary" @click="reload()">搜索</button>
+            <button class="btn btn-sm btn-outline-secondary" @click="reset()">重置</button>
+          </div>
+        </template>
+      </data-table>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({
+  data(){ return {
+    DICTS: window.DICTS,
+    cols: [{"f": "repayId", "label": "ID"}, {"f": "applyNo", "label": "贷款编号"}, {"f": "repayNo", "label": "还款流水"}, {"f": "repayAmount", "label": "还款总额"}, {"f": "principalAmount", "label": "本金"}, {"f": "interestAmount", "label": "利息"}, {"f": "repayStatus", "label": "状态", "dict": "repayStatus"}, {"f": "repayTime", "label": "还款时间"}, {"f": "remark", "label": "备注"}],
+    q: { applyNo:'', repayNo:'', repayStatus:null }
+  }; },
+  methods: {
+    reload(){ this.$refs.tbl.reload(); },
+    reset(){ this.q.applyNo=''; this.q.repayNo=''; this.q.repayStatus=null; this.reload(); }
+  }
+});
+</script>
+</body>
+</html>

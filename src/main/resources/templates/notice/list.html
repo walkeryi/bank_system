@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('通知公告')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/notice/list')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <data-table ref="tbl" url="/api/notice/list" :columns="cols" pk="noticeId" :params="q" :page-size="5"
+                  :delete-url="isStaff ? '/api/notice/delete' : null">
+        <template #btns><a v-if="isStaff "class="btn btn-sm btn-primary" href="/notice/add">新增</a></template>
+        <template #title>通知公告</template>
+        <template #search>
+          <div class="d-flex flex-wrap align-items-center gap-2 p-3 border-bottom bg-light">
+            <input class="form-control form-control-sm" style="max-width:200px" v-model.trim="q.noticeTitle" @keyup.enter="reload()" placeholder="标题"/>
+            <button class="btn btn-sm btn-primary" @click="reload()">搜索</button>
+            <button class="btn btn-sm btn-outline-secondary" @click="reset()">重置</button>
+          </div>
+        </template>
+      </data-table>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({ data(){ return {
+    DICTS: window.DICTS,
+    cols: [{"f": "noticeId", "label": "ID"}, {"f": "noticeTitle", "label": "标题"}, {"f": "noticeContent", "label": "内容"}, {"f": "receiveUserName", "label": "接收人"}, {"f": "createTime", "label": "发布时间"}],
+    q: { noticeTitle:'', isRead:null },
+    isStaff: false
+  }; },
+  mounted(){
+    Bank.http.get('/api/info').then(r => {
+      const roles = (r.data.data && r.data.data.roleIds) || [];
+      this.isStaff = roles.some(id => id !== 5);
+    });
+  },
+  methods: {
+    reload(){ this.$refs.tbl.reload(); },
+    reset(){ this.q.noticeTitle=''; this.q.isRead=null; this.reload(); }
+  }});
+</script>
+</body>
+</html>

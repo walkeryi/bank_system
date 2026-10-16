@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bank.dao.LoanApplyDao">
+    <select id="selectVoList" resultType="com.bank.entity.LoanApply">
+        SELECT
+        l.*,
+        u.user_name AS userName,
+        c.user_name AS creditUserName,
+        m.user_name AS managerUserName
+        FROM loan_apply l
+        LEFT JOIN `user` u ON u.user_id = l.user_id
+        LEFT JOIN `user` c ON c.user_id = l.credit_user_id
+        LEFT JOIN `user` m ON m.user_id = l.manager_user_id
+        <where>
+            <if test="userId != null and userId != ''">
+                AND u.user_id = #{userId}
+            </if>
+            <if test="applyNo != null and applyNo != ''">
+                AND l.apply_no LIKE CONCAT('%', #{applyNo}, '%')
+            </if>
+            <if test="userName != null and userName != ''">
+                AND u.user_name LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="applyStatus != null">
+                AND l.apply_status = #{applyStatus}
+            </if>
+        </where>
+        ORDER BY l.loan_id ASC
+    </select>
+
+</mapper>

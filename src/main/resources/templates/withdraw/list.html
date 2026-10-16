@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('大额取款申请')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/withdraw/list')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <data-table ref="tbl" url="/api/withdraw/list" :columns="cols" pk="applyId" :params="q" :page-size="5">
+        <template #title>大额取款申请</template>
+        <template #btns><a class="btn btn-sm btn-primary" href="/withdraw/toAdd">发起大额取款</a></template>
+        <template #search>
+          <div class="d-flex flex-wrap align-items-center gap-2 p-3 border-bottom bg-light">
+            <input class="form-control form-control-sm" style="max-width:180px" v-model.trim="q.applyNo" @keyup.enter="reload()" placeholder="申请单号"/>
+            <input class="form-control form-control-sm" style="max-width:200px" v-model.trim="q.accountNo" @keyup.enter="reload()" placeholder="取款账号"/>
+            <select class="form-select form-select-sm" style="max-width:130px" v-model="q.applyStatus">
+              <option :value="null">全部状态</option>
+              <option v-for="(lab,val) in DICTS.withdrawStatus" :key="val" :value="Number(val)">{{lab}}</option>
+            </select>
+            <button class="btn btn-sm btn-primary" @click="reload()">搜索</button>
+            <button class="btn btn-sm btn-outline-secondary" @click="reset()">重置</button>
+          </div>
+        </template>
+        <template #actions="{row}">
+          <template v-if="isStaff">
+            <button class="btn btn-sm btn-outline-success me-1" v-if="row.applyStatus===0" @click="approve(row,true)">授权</button>
+            <button class="btn btn-sm btn-outline-warning me-1" v-if="row.applyStatus===0" @click="approve(row,false)">拒绝</button>
+          </template>
+          <button class="btn btn-sm btn-outline-danger" v-if="row.applyStatus===0" @click="cancel(row)">撤销</button>
+        </template>
+      </data-table>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({
+  data(){ return {
+    DICTS: window.DICTS,
+    cols: [{"f":"applyId","label":"ID"},{"f":"applyNo","label":"申请单号"},{"f":"accountNo","label":"取款账号"},{"f":"balance","label":"账户余额"},{"f":"withdrawAmount","label":"金额"},{"f":"applyStatus","label":"状态","dict":"withdrawStatus"},{"f":"tellerName","label":"经办柜员"},{"f":"createTime","label":"申请时间"}],
+    q: { applyNo:'', accountNo:'', applyStatus:null },
+    isStaff: false
+  }; },
+  mounted(){
+    Bank.http.get('/api/info').then(r => {
+      const roles = (r.data.data && r.data.data.roleIds) || [];
+      this.isStaff = roles.some(id => id !== 5);
+    });
+  },
+  methods: {
+    approve(row,pass){
+        let comment=pass?'同意大额取款':prompt('请输入驳回意见','材料不全');
+        if(comment===null)return;
+        Bank.http.post('/api/withdraw/approve',{id:row.applyId,pass:pass,comment:comment})
+          .then(r=>{ if(r.data.code===200){alert('已处理');this.reload();}else alert(r.data.msg); });
+    },
+    cancel(row){ if(!confirm('确认撤销该申请？'))return;
+        Bank.http.post('/api/withdraw/cancel/'+row.applyId).then(r=>{ if(r.data.code===200){alert('已撤销');this.reload();}else alert(r.data.msg); });
+    },
+    reload(){ this.$refs.tbl.reload(); },
+    reset(){ this.q.applyNo=''; this.q.accountNo=''; this.q.applyStatus=null; this.reload(); }
+  }
+});
+</script>
+</body>
+</html>

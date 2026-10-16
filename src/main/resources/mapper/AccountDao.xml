@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bank.dao.AccountDao">
+    <select id="selectVoList" resultType="com.bank.entity.Account">
+        SELECT a.*, u.user_name AS userName, u.id_card AS idCard
+        FROM account a LEFT JOIN `user` u ON u.user_id = a.user_id
+        <where>
+            <if test="userId != null">
+                AND a.user_id = #{userId}
+            </if>
+            <if test="accountNo != null and accountNo != ''">
+                AND a.account_no LIKE CONCAT('%', #{accountNo}, '%')
+            </if>
+            <if test="userName != null and userName != ''">
+                AND u.user_name LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="idCard != null and idCard != ''">
+                AND u.id_card LIKE CONCAT('%', #{idCard}, '%')
+            </if>
+            <if test="accountStatus != null">
+                AND a.account_status = #{accountStatus}
+            </if>
+        </where>
+        ORDER BY a.account_id
+    </select>
+</mapper>

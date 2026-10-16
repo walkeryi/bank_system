@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('账户状态变更')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/status/list')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <data-table ref="tbl" url="/api/status/list" :columns="cols" pk="id" :params="q" :page-size="5">
+        <template #title>账户状态变更</template>
+        <template #search>
+          <div class="d-flex flex-wrap align-items-center gap-2 p-3 border-bottom bg-light">
+            <input class="form-control form-control-sm" style="max-width:200px" v-model.trim="q.accountNo" @keyup.enter="reload()" placeholder="账号"/>
+            <input class="form-control form-control-sm" style="max-width:140px" v-model.trim="q.operateUserName" @keyup.enter="reload()" placeholder="操作人"/>
+            <button class="btn btn-sm btn-primary" @click="reload()">搜索</button>
+            <button class="btn btn-sm btn-outline-secondary" @click="reset()">重置</button>
+          </div>
+        </template>
+      </data-table>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({
+  data(){ return {
+    cols: [{"f": "changeId", "label": "ID"}, {"f": "accountNo", "label": "账号"}, {"f": "beforeStatus", "label": "变更前", "dict": "accountStatus"}, {"f": "afterStatus", "label": "变更后", "dict": "accountStatus"}, {"f": "operateUserName", "label": "操作人"}, {"f": "changeReason", "label": "原因"}, {"f": "changeTime", "label": "时间"}],
+    q: { accountNo:'', operateUserName:'' }
+  }; },
+  methods: {
+    reload(){ this.$refs.tbl.reload(); },
+    reset(){ this.q.accountNo=''; this.q.operateUserName=''; this.reload(); }
+  }
+});
+</script>
+</body>
+</html>

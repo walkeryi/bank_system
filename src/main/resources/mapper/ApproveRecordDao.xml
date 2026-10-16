@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bank.dao.ApproveRecordDao">
+    <select id="selectVoList" resultType="com.bank.entity.ApproveRecord">
+        SELECT p.*, a.user_name AS applyUserName, m.user_name AS approveUserName
+        FROM approve_record p
+        LEFT JOIN `user` a ON a.user_id=p.apply_user_id
+        LEFT JOIN `user` m ON m.user_id=p.approve_user_id
+        <where>
+            <if test="applyUserName != null and applyUserName != ''">
+                AND a.user_name LIKE CONCAT('%', #{applyUserName}, '%')
+            </if>
+            <if test="approveUserName != null and approveUserName != ''">
+                AND m.user_name LIKE CONCAT('%', #{approveUserName}, '%')
+            </if>
+            <if test="approveStatus != null">
+                AND p.approve_status = #{approveStatus}
+            </if>
+        </where>
+        ORDER BY p.approve_id ASC
+    </select>
+</mapper>

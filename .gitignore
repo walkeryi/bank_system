@@ -1,0 +1,19 @@
+# 构建产物
+target/
+.m2repo/
+.vendor/
+
+# 运行日志
+*.log
+
+# IDE 个人状态（workspace 里存的是本机绝对路径）
+.idea/workspace.xml
+.idea/shelf/
+.idea/httpRequests/
+.idea/dataSources/
+.idea/dataSources.local.xml
+*.iml
+
+# 系统文件
+Thumbs.db
+.DS_Store

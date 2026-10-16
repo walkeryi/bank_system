@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bank.dao.NoticeDao">
+    <select id="selectVoList" resultType="com.bank.entity.Notice">
+        SELECT n.*, u.user_name AS receiveUserName FROM notice n LEFT JOIN `user` u ON u.user_id=n.receive_user_id
+        <where>
+            <if test="userId != null">
+                AND (n.receive_user_id = #{userId} OR n.receive_user_id IS NULL)
+            </if>
+            <if test="noticeTitle != null and noticeTitle != ''">
+                AND n.notice_title LIKE CONCAT('%', #{noticeTitle}, '%')
+            </if>
+            <if test="isRead != null">
+                AND n.is_read = #{isRead}
+            </if>
+        </where>
+        ORDER BY n.notice_id ASC
+    </select>
+</mapper>

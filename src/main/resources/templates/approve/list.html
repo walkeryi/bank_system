@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('审批记录')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/approve/list')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <data-table ref="tbl" url="/api/approve/list" :columns="cols" pk="id" :params="q" :page-size="5">
+        <template #title>审批记录</template>
+        <template #search>
+          <div class="d-flex flex-wrap align-items-center gap-2 p-3 border-bottom bg-light">
+            <input class="form-control form-control-sm" style="max-width:140px" v-model.trim="q.applyUserName" @keyup.enter="reload()" placeholder="申请人"/>
+            <input class="form-control form-control-sm" style="max-width:140px" v-model.trim="q.approveUserName" @keyup.enter="reload()" placeholder="审批人"/>
+            <select class="form-select form-select-sm" style="max-width:130px" v-model="q.approveStatus">
+              <option :value="null">全部状态</option>
+              <option v-for="(lab,val) in DICTS.approveStatus" :key="val" :value="Number(val)">{{lab}}</option>
+            </select>
+            <button class="btn btn-sm btn-primary" @click="reload()">搜索</button>
+            <button class="btn btn-sm btn-outline-secondary" @click="reset()">重置</button>
+          </div>
+        </template>
+      </data-table>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({
+  data(){ return {
+    DICTS: window.DICTS,
+    cols: [{"f": "approveId", "label": "ID"}, {"f": "businessType", "label": "业务类型"}, {"f": "businessId", "label": "业务ID"}, {"f": "applyUserName", "label": "申请人"}, {"f": "approveUserName", "label": "审批人"}, {"f": "approveStatus", "label": "状态", "dict": "approveStatus"}, {"f": "approveOpinion", "label": "审批意见"}, {"f": "createTime", "label": "申请时间"}, {"f": "approveTime", "label": "审批时间"}],
+    q: { applyUserName:'', approveUserName:'', approveStatus:null }
+  }; },
+  methods: {
+    reload(){ this.$refs.tbl.reload(); },
+    reset(){ this.q.applyUserName=''; this.q.approveUserName=''; this.q.approveStatus=null; this.reload(); }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bank.dao.UserDao">
+    <select id="selectVoList" resultType="com.bank.entity.User">
+        SELECT u.*, (SELECT GROUP_CONCAT(r.role_name) FROM user_role ur
+          JOIN `role` r ON r.role_id=ur.role_id WHERE ur.user_id=u.user_id) AS roleName
+        FROM `user` u
+        <where>
+            <if test="userNo != null and userNo != ''">
+                AND u.user_no LIKE CONCAT('%', #{userNo}, '%')
+            </if>
+            <if test="userName != null and userName != ''">
+                AND u.user_name LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND u.phone LIKE CONCAT('%', #{phone}, '%')
+            </if>
+            <if test="status != null">
+                AND u.status = #{status}
+            </if>
+        </where>
+        ORDER BY u.user_id
+    </select>
+    <select id="selectByUserNo" resultType="com.bank.entity.User">
+        SELECT * FROM `user` WHERE user_no=#{userNo}
+    </select>
+</mapper>

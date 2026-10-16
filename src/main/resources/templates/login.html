@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('登录')}"></head>
+<body>
+<div class="login-wrap">
+    <div class="card login-card">
+        <div class="card-body p-4">
+            <h4 class="text-center mb-1">银行网点管理系统</h4>
+            <p class="text-center text-muted mb-4">Bank Branch Management</p>
+            <div id="app">
+                <div class="alert alert-danger py-2" v-if="error">{{ error }}</div>
+                <form @submit.prevent="login">
+                    <div class="mb-3">
+                        <label class="form-label">账号</label>
+                        <input class="form-control" v-model="userNo" placeholder="请输入账号" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-control" v-model="password" placeholder="请输入密码" required/>
+                    </div>
+                    <button class="btn btn-primary w-100" type="submit">登 录</button>
+                </form>
+                <p class="text-muted small mt-3 mb-0">
+                    没有账号？<a th:href="@{/register}">前往注册</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@1.7.2/dist/axios.min.js"></script>
+<script th:src="@{/static/js/common.js}"></script>
+<script>
+Vue.createApp({
+  data(){ return { userNo:'', password:'', error:'' }; },
+  methods:{ login(){
+      this.error='';
+      axios.post('/api/login',{ userNo:this.userNo, password:this.password })
+        .then(r=>{ if(r.data.code===200){ location.href='/index'; } else { this.error=r.data.msg; } })
+        .catch(e=>{ this.error='登录请求失败'; });
+  }}
+}).mount('#app');
+</script>
+</body>
+</html>

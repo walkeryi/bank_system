@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('交易流水')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/trade/list')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <data-table ref="tbl" url="/api/trade/list" :columns="cols" pk="tradeId" :params="q" :page-size="5">
+        <template #title>交易流水</template>
+        <template #search>
+          <div class="d-flex flex-wrap align-items-center gap-2 p-3 border-bottom bg-light">
+            <input class="form-control form-control-sm" style="max-width:180px" v-model.trim="q.tradeNo" @keyup.enter="reload()" placeholder="流水号"/>
+            <input class="form-control form-control-sm" style="max-width:180px" v-model.trim="q.accountNo" @keyup.enter="reload()" placeholder="账号"/>
+            <select class="form-select form-select-sm" style="max-width:120px" v-model="q.tradeType">
+              <option :value="null">全部类型</option>
+              <option v-for="(lab,val) in DICTS.tradeType" :key="val" :value="Number(val)">{{lab}}</option>
+            </select>
+            <select class="form-select form-select-sm" style="max-width:120px" v-model="q.tradeStatus">
+              <option :value="null">全部状态</option>
+              <option v-for="(lab,val) in DICTS.tradeStatus" :key="val" :value="Number(val)">{{lab}}</option>
+            </select>
+            <button class="btn btn-sm btn-primary" @click="reload()">搜索</button>
+            <button class="btn btn-sm btn-outline-secondary" @click="reset()">重置</button>
+          </div>
+        </template>
+      </data-table>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({
+  data(){ return {
+    DICTS: window.DICTS,
+    cols: [{"f":"tradeId","label":"ID"},{"f":"tradeNo","label":"流水号"},{"f":"accountNo","label":"操作账号"},{"f":"tradeType","label":"类型","dict":"tradeType"},{"f":"tradeAmount","label":"金额"},{"f":"tradeStatus","label":"状态","dict":"tradeStatus"},{"f":"counterUserName","label":"经办"},{"f":"targetAccountNo","label":"对方账号"},{"f":"tradeTime","label":"时间"}],
+    q: { tradeNo:'', accountNo:'', tradeType:null, tradeStatus:null }
+  }; },
+  methods: {
+    reload(){ this.$refs.tbl.reload(); },
+    reset(){ this.q.tradeNo=''; this.q.accountNo=''; this.q.tradeType=null; this.q.tradeStatus=null; this.reload(); }
+  }
+});
+</script>
+</body>
+</html>

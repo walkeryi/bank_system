@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('账户管理')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/account/list')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <data-table ref="tbl" url="/api/account/list" :columns="cols" pk="accountId" :params="q" :page-size="5">
+        <template #title>账户管理</template>
+        <template #btns>
+          <a v-if="isStaff" class="btn btn-sm btn-primary" href="/account/toAdd">客户开户</a>
+        </template>
+        <template #search>
+          <div class="d-flex flex-wrap align-items-center gap-2 p-3 border-bottom bg-light">
+            <input class="form-control form-control-sm" style="max-width:200px" v-model.trim="q.accountNo" @keyup.enter="reload()" placeholder="账号"/>
+            <input class="form-control form-control-sm" style="max-width:140px" v-model.trim="q.userName" @keyup.enter="reload()" placeholder="户名"/>
+            <input class="form-control form-control-sm" style="max-width:200px" v-model.trim="q.idCard" @keyup.enter="reload()" placeholder="证件号"/>
+            <select class="form-select form-select-sm" style="max-width:120px" v-model="q.accountStatus">
+              <option :value="null">全部状态</option>
+              <option v-for="(lab,val) in DICTS.accountStatus" :key="val" :value="Number(val)">{{lab}}</option>
+            </select>
+            <button class="btn btn-sm btn-primary" @click="reload()">搜索</button>
+            <button class="btn btn-sm btn-outline-secondary" @click="reset()">重置</button>
+          </div>
+        </template>
+        <template #actions="{row}">
+          <template v-if="isStaff">
+            <button class="btn btn-sm btn-outline-warning me-1" v-if="row.accountStatus===0" @click="chg(row,1)">冻结</button>
+            <button class="btn btn-sm btn-outline-success me-1" v-if="row.accountStatus===1" @click="chg(row,0)">解冻</button>
+            <button class="btn btn-sm btn-outline-danger" v-if="row.accountStatus!==2" @click="chg(row,2)">销户</button>
+          </template>
+        </template>
+      </data-table>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+  Bank.mount({
+    data(){ return {
+      DICTS: window.DICTS,
+      cols: [{"f":"accountId","label":"ID"},{"f":"accountNo","label":"账号"},{"f":"userName","label":"户名"},{"f":"idCard","label":"证件号"},{"f":"balance","label":"余额"},{"f":"accountStatus","label":"状态","dict":"accountStatus"},{"f":"openTime","label":"开户时间"},{"f":"remark","label":"备注"}],
+      q: { accountNo:'', userName:'', idCard:'', accountStatus:null },
+      isStaff: false
+    }; },
+    mounted(){
+      Bank.http.get('/api/info').then(r => {
+        const roles = (r.data.data && r.data.data.roleIds) || [];
+        this.isStaff = roles.some(id => id !== 5);
+      });
+    },
+    methods: {
+      chg(row,after){
+        const map={0:'解冻',1:'冻结',2:'销户'};
+        let reason=prompt('请输入['+map[after]+']原因','业务需要'); if(reason===null)return;
+        Bank.http.post('/api/account/status',{id:row.accountId,afterStatus:after,reason:reason})
+                .then(r=>{ if(r.data.code===200){alert('操作成功');this.$refs.tbl.load();}else alert(r.data.msg); });
+      },
+      reload(){ this.$refs.tbl.reload(); },
+      reset(){ this.q.accountNo=''; this.q.userName=''; this.q.idCard=''; this.q.accountStatus=null; this.reload(); }
+    }
+  });
+</script>
+</body>
+</html>

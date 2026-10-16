@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('贷款业务')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/loan/list')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <data-table ref="tbl" url="/api/loan/list" :columns="cols" pk="loanId" :params="q" :page-size="5">
+        <template #title>贷款业务</template>
+        <template #btns><a class="btn btn-sm btn-primary" href="/loan/toAdd">贷款申请</a></template>
+        <template #search>
+          <div class="d-flex flex-wrap align-items-center gap-2 p-3 border-bottom bg-light">
+            <input class="form-control form-control-sm" style="max-width:180px" v-model.trim="q.applyNo" @keyup.enter="reload()" placeholder="申请编号"/>
+            <input class="form-control form-control-sm" style="max-width:140px" v-model.trim="q.userName" @keyup.enter="reload()" placeholder="借款人"/>
+            <select class="form-select form-select-sm" style="max-width:130px" v-model="q.applyStatus">
+              <option :value="null">全部状态</option>
+              <option v-for="(lab,val) in DICTS.loanStatus" :key="val" :value="Number(val)">{{lab}}</option>
+            </select>
+            <button class="btn btn-sm btn-primary" @click="reload()">搜索</button>
+            <button class="btn btn-sm btn-outline-secondary" @click="reset()">重置</button>
+          </div>
+        </template>
+        <template #actions="{row}">
+          <template v-if="isStaff">
+          <template v-if="row.applyStatus===0">
+            <button class="btn btn-sm btn-outline-success me-1" @click="audit(row,true)">初审通过</button>
+            <button class="btn btn-sm btn-outline-warning" @click="audit(row,false)">初审驳回</button>
+          </template>
+          <template v-else-if="row.applyStatus===1">
+            <button class="btn btn-sm btn-outline-success me-1" @click="approve(row,true)">终审通过</button>
+            <button class="btn btn-sm btn-outline-warning" @click="approve(row,false)">终审驳回</button>
+          </template>
+          <button class="btn btn-sm btn-outline-primary" v-else-if="row.applyStatus===2" @click="lend(row)">放款</button>
+        </template>
+        </template>
+      </data-table>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({
+  data(){ return {
+    DICTS: window.DICTS,
+    cols: [{"f":"loanId","label":"ID"},{"f":"applyNo","label":"申请编号"},{"f":"userName","label":"借款人"},{"f":"loanAmount","label":"金额"},{"f":"loanTerm","label":"期限(月)"},{"f":"rate","label":"年利率"},{"f":"applyStatus","label":"状态","dict":"loanStatus"},{"f":"creditUserName","label":"信贷员"},{"f":"managerUserName","label":"终审经理"},{"f":"createTime","label":"申请时间"}],
+    q: { applyNo:'', userName:'', applyStatus:null },
+    isStaff: false
+  }; },
+  mounted(){
+    Bank.http.get('/api/info').then(r => {
+      const roles = (r.data.data && r.data.data.roleIds) || [];
+      this.isStaff = roles.some(id => id !== 5);
+    });
+  },
+  methods: {
+    audit(row,pass){ if(!confirm(pass?'初审通过？':'初审驳回？'))return;
+        Bank.http.post('/api/loan/audit',{id:row.loanId,pass:pass}).then(r=>{ if(r.data.code===200){this.reload();}else alert(r.data.msg); });
+    },
+    approve(row,pass){ let c=pass?'同意贷款':prompt('驳回意见',''); if(c===null)return;
+        Bank.http.post('/api/loan/approve',{id:row.loanId,pass:pass,comment:c}).then(r=>{ if(r.data.code===200){this.reload();}else alert(r.data.msg); });
+    },
+    lend(row){ if(!confirm('确认放款？'))return;
+        Bank.http.post('/api/loan/lend/'+row.loanId).then(r=>{ if(r.data.code===200){alert('已放款');this.reload();}else alert(r.data.msg); });
+    },
+    reload(){ this.$refs.tbl.reload(); },
+    reset(){ this.q.applyNo=''; this.q.userName=''; this.q.applyStatus=null; this.reload(); }
+  }
+});
+</script>
+</body>
+</html>

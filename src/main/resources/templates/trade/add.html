@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="~{fragments :: head('柜面交易（存款/取款/转账）')}"></head>
+<body>
+<div class="layout">
+  <aside th:replace="~{fragments :: sidebar('/trade/toAdd')}"></aside>
+  <div class="main-col">
+    <header th:replace="~{fragments :: topbar}"></header>
+    <main class="content" id="app">
+      <div class="card" style="max-width:720px"><div class="card-header">柜面交易（存款/取款/转账）</div>
+      <div class="card-body"><form @submit.prevent="submit" class="row g-3">
+        <div class="col-md-6"><label class="form-label">操作账户ID *</label><input type="number" class="form-control" v-model.number="f.accountId" required/></div>
+        <div class="col-md-6"><label class="form-label">交易类型 *</label>
+          <select class="form-select" v-model.number="f.tradeType" required>
+            <option v-for="(lab,val) in DICTS.tradeType" :value="Number(val)">{{lab}}</option>
+          </select></div>
+        <div class="col-md-6"><label class="form-label">交易金额 *</label><input type="number" step="any" class="form-control" v-model.number="f.tradeAmount" required/></div>
+        <div class="col-md-6" v-if="f.tradeType===3"><label class="form-label">转入账户ID *</label><input type="number" class="form-control" v-model.number="f.targetAccountId"/></div>
+        <div class="col-12"><label class="form-label">备注</label><input class="form-control" v-model="f.remark"/></div>
+        <div class="col-12"><button class="btn btn-primary">提交</button> <a class="btn btn-outline-secondary" href="/trade/list">返回列表</a></div>
+      </form></div></div>
+    </main>
+  </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+Bank.mount({
+  data(){ return { f:{ accountId:null,tradeType:1,tradeAmount:null,targetAccountId:null,remark:'' }, DICTS:window.DICTS }; },
+  methods:{
+    submit(){
+        if(this.f.tradeType===3 && !this.f.targetAccountId){ alert('转账必须填写转入账户'); return; }
+        Bank.http.post('/api/trade/add',this.f).then(r=>{ if(r.data.code===200){alert('交易成功');location.href='/trade/list';}else alert(r.data.msg); });
+    }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bank.dao.RoleDao">
+    <select id="selectVoList" resultType="com.bank.entity.Role">
+        SELECT * FROM role
+        <where>
+            <if test="roleName != null and roleName != ''">
+                AND role_name LIKE CONCAT('%', #{roleName}, '%')
+            </if>
+        </where>
+        ORDER BY role_id
+    </select>
+</mapper>
