@@ -26,7 +26,7 @@ git clone -b dev https://github.com/walkeryi/bank_system.git
 cd bank_system
 ```
 
-仓库是公开的，**克隆不需要任何权限**；只有往上面推才需要（见第六节）。
+仓库是公开的，**克隆不需要任何权限**；只有往上面推才需要（见第七节）。
 
 等价写法：先 `git clone https://github.com/walkeryi/bank_system.git`，再 `git switch dev`
 （默认落在 `main`，所以要切一下）。只想快点拿到源码可以用 `git clone --depth 1 -b dev ...`。
@@ -180,24 +180,27 @@ git push origin dev
 
 ## 十、已知问题（2026-10-17 实测）
 
-冒烟测试结论：20 个页面、11 个列表接口、登录/登出/增删/分页/权限拦截都正常
-（63 项断言通过 61 项，2 项失败是下面的第 2 条）。以下是已知缺陷，都还没修：
+冒烟测试结论：20 个页面、11 个列表接口、登录/登出/增删/分页/未登录拦截都正常
+（63 项断言通过 61 项，2 项失败是下面的第 3 条）。以下是已知缺陷，都还没修：
 
-1. **接口层没有角色校验。** 只要登录成功，任何账号都能调用全部 `/api/**`：
-   能读用户表（含身份证号）、审计日志、全部账户，也能写角色/公告。
-   实测用 `C2026001`（信贷员）调 `POST /api/role/add` 能写库成功。
+1. **接口层没有角色校验。** 只要登录成功，任何账号都能调用全部 `/api/**`。
+   实测两个账号：`S2026001`（客户，权限最低的角色）能读用户表、读审计日志、
+   打开 `/user/list` 页面；`C2026001`（信贷员）调 `POST /api/role/add` 能写库成功。
    左侧菜单按角色隐藏只是前端的门，接口的门没关。要真隔离得在拦截器里加角色判断。
-2. **注册接口有两处空指针。** `/api/register` 传一个库里合法、但代码里那个 map 没有的角色码
+2. **用户列表接口会把密码哈希一起返回。** `/api/user/list` 的每条记录都带
+   `passwordHash`（MD5、无盐、而且 6 个账号全一样）。配合上一条，任何登录账号
+   都能拿到全部员工的哈希。登录接口已经做了置空处理，列表接口漏了。
+3. **注册接口有两处空指针。** `/api/register` 传一个库里合法、但代码里那个 map 没有的角色码
    （例如 `ADMIN`），`roleMap.get()` 返回 null 触发 NPE；不传 `idCard` 时
    `idCard.length()` 触发 NPE。两者都返回 `系统异常：...`，**并把 Java 异常原文回显给浏览器**。
    正常走页面表单碰不到（有必填和下拉框）。
-3. **五个路由没有对应模板**，手输 URL 会返回 500 白页：
+4. **五个路由没有对应模板**，手输 URL 会返回 500 白页：
    `/role/add`、`/product/list`、`/product/toAdd`、`/order/list`、`/order/toAdd`。
    侧边栏和首页已经没有这些链接，只有手输才会触发。
-4. **前端 js/css 从 `cdn.jsdelivr.net` 加载**（Bootstrap、Vue、axios），本地 `static/` 下只有
+5. **前端 js/css 从 `cdn.jsdelivr.net` 加载**（Bootstrap、Vue、axios），本地 `static/` 下只有
    `app.css`、`common.js`、`dict.js`。**断网时页面没样式、Vue 不加载、表格是空的。**
    要离线演示得把这三个库下载到本地并改 `templates/fragments.html` 的引用。
-5. 上面第零节说的 `financial_product` / `product_order` 两张表的问题。
+6. 第零节说的 `financial_product` / `product_order` 两张表的问题。
 
 ## 十一、目录结构
 
